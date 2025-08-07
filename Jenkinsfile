@@ -24,7 +24,7 @@ pipeline {
   // Maven settings configuration
   environment {
     // Path to Maven settings file
-    MAVEN_SETTINGS = '${WORKSPACE}/jenkins/settings.xml'
+    MAVEN_SETTINGS = '${WORKSPACE}/settings.xml'
     
     // Maven options
     MAVEN_OPTS = '-Xmx1024m -XX:MaxPermSize=256m'
@@ -47,7 +47,7 @@ pipeline {
         script {
           checkout([
             $class: 'GitSCM',
-            branches: [[name: '*/master']],
+            branches: [[name: '*/main']],
             extensions: [[$class: 'CleanBeforeCheckout']],
             userRemoteConfigs: [
               [
@@ -322,12 +322,14 @@ pipeline {
     }
                 )
 
-                rtMavenResolver (
-                    id: "MAVEN_RESOLVER",
-                    serverId: "jfrog",
-                    releaseRepo: "iwayq-libs-release",
-                    snapshotRepo: "iwayq-libs-snapshot"
-                )
+                script {
+                    rtMavenResolver (
+                        id: "MAVEN_RESOLVER",
+                        serverId: "jfrog",
+                        releaseRepo: "iwayq-libs-release",
+                        snapshotRepo: "iwayq-libs-snapshot"
+                    )
+                }
             }
     }
 
