@@ -16,3 +16,5 @@ To stop Jenkins:
 ```bash
 docker-compose down
 ```
+
+Trigger
