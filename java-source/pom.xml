@@ -147,5 +147,4 @@
         <url>http://localhost:8082/artifactory/iwayq-libs-snapshot-local</url>
     </snapshotRepository>
 </distributionManagement>
-</distributionManagement>
 </project>
