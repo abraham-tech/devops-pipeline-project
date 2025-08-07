@@ -1,0 +1,332 @@
+# DO NOT IMPORT THIS FILE.
+# This file describes the JFrog Access YAML configuration file and should only be
+# as a reference.
+#
+# To change the configuration in an Access service, follow these instructions:
+# 1. Find the value you want to update
+# 2. Set the value in the access.config.latest.yml file under [$JFROG_HOME]/artifactory/var/etc/access
+# 3. Change access.config.latest.yml to access.config.import.yml
+# 4. Restart Access
+---
+security:
+  disable-swagger-ui: true #
+  token-expiry-notification: # Daily notification to users who have tokens that expire within a day of set threshold
+    enabled: false            # Flag to enable/disable feature
+    scheduled-time: "08:00"   # Time of day to run the reminder task, HH:MM (24 hours) format, UTC timezone
+    notice-period-in-days: 1  # How many days ahead to look for tokens
+    token-expiry-notification-frequency: "once" # If feature enabled, by default only 1 email will be sent as reminder. If customer wants, they can enable a daily reminder using this.
+  token-expiry-worker-notification: # Worker notification of tokens that are about to expire
+    enabled: false            # Flag to enable/disable feature
+    cron: "0 * * * * *"   # Cron expression to run the expiration check and notification
+    notice-period-in-days: 1  # How many days ahead to look for tokens
+  multi-factor-authentication:
+    authenticators: [ ] # list of available authentication providers. feature is disabled if unset
+    application-name: JFrog Platform  # app name to display in Authenticator App
+  password-policy: # users' password policy
+    uppercase: 0                 # minimum number of uppercase letters that the password must contain
+    lowercase: 0                 # minimum number of lowercase letters that the password must contain
+    special-char: 0              # minimum number of special char that the password must contain. Special chars list between double quotes " !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"
+    digit: 0                     # minimum number of digits that the password must contain
+    length: 4                    # minimum length of the password
+    cannot-match-username: true  # If true, the password cannot be changed to match the username (case-insensitive)
+    not-match-old: true          # should Access allow setting a new password to the same one currently set for the user
+  user-lock-policy:
+    attempts: 0                     # number of failed login attempts to allow before locking a user. 0 (default) means the feature is disabled
+    seconds-to-unlock: 1            # number of seconds to wait before re-enabling login for a user that has been locked out
+    password-expiry-days: 0         # number of days before a password expires. If 0, password is never expired.
+    admin-password-expirable: false # does the Access admin password expire
+    max-login-delay-incorrect-attempts: 2 # Number of failed login attempts before delay mechanism comes into play
+    max-login-delay-millis: 60000
+    base-login-delay-millis: 1000
+    client-login-suspension-enabled: true     # Login suspension mechanism on recurrent failures
+    cache:
+      expire-after-write-seconds: 86400 # number of seconds Access waits before deleting an entry from the cache
+      maximum-size: 10000              # maximum number of entries allowed in the cache
+
+  audit:
+    enabled: true           # should access log all requests to a specific file or not
+  password-strength: 8      # bcrypt password strength. A higher value means better security, but password verification will be slower
+  max-backup-files-number: 10  # maximum number of access.backup.timestamp.json, access.bootstrap-timestamp.config and access.bootstrap-timestamp.json files that can be stored
+  local-interfaces-expire-in-seconds: 600 # number of seconds for which local server ips should be cached for users’ allowed-ips
+  encryption-enabled: true  # specifies if users’ custom data encryption is allowed
+  validate-user-email: true # when set to true, Access will validate the user's email
+  tls: false # When set to true, JFrog Access will act as the Certificate Authority (CA) and sign the TLS certificates used by all the different JFrog Platform nodes. This ensures that the node to node communication is done over TLS.
+  tls-minimal-version: TLS-1.2 # When set, node to node communication via TLS will support only TLS with version matching the minimal version and above
+  tls-subject-alternative-names: # When set, these names will be added as SAN to the generated node TLS certificate
+    - myaoleustghttpsv-artifactory
+    - myaoleustghttpsv-artifactory-artifactory
+    - "*.svc.myaoleustghttpsv.cluster.local"
+  topology-stale-millis: 30000  # The time passed from the last heartbeat of any of the micro-services in the topology, before it is considered stale
+  secrets-require-tls: true # Deprecated this flag is not used to enforce encryption anymore
+  anonymous-access-enabled: false # should Access allow anonymous auth
+  allow-anonymous-in-projects: false # Enable adding anonymous user to projects
+  bootstrap-token-delete-in-minutes: 1  # number of minutes to wait before deleting initial admin access token from file-system.
+  invite-limitations:
+    enabled: true                    # Invite is limited for {allowed-invitations-per-day} specific emails per day.
+    maintenance-interval-secs: 86400 # Interval for cleaning up stale email logs in seconds.
+    allowed-invitations-per-day: 5   # The number of the allowed invitations per day per email.
+  authentication:
+    disable-remember-me: false
+    disable-api-key-creation: true # When set to true, Block user from create api key
+    disable-api-key-authentication: false # When set to true, block user from authenticate with api key.
+    hide-basic-login: false # When set to true, users login in to the JFrog platform will not be presented with the option to login with basic credentials. Instead, they will only have the option to use external SSO providers (using SAML/OAuth). Note: This is applicable only if an external SSO provider is already configured.
+    hide-sso-providers: false # When set to true, users login in to the JFrog platform will not show sso providers as a list. Instead, customer see the text field to fill in manually provider name.
+    basic-authentication-enabled: true #When set to true, enable internal JFrog user to authenticate using basic credentials
+    basic-authentication-enforce-mfa: false # When set to true, blocks all basic credentials based authentication if multi-factor authentication is enabled
+    password-autocomplete-enabled: true # When set to true, allow password autocomplete in the login form
+    password-encryption: supported # Determines the password requirements for authenticate users. The options are: Supported (default): Users can authenticate using secure encrypted passwords or clear-text passwords. Required: Users must authenticate using secure encrypted passwords. Clear-text authentication fails. Unsupported: Only clear-text passwords can be used for authentication.
+    users:
+      cache:
+        expire-after-write-seconds: 300 # number of seconds Access waits before deleting an entry from the cache
+        maximum-size: 10000              # maximum number of entries allows in the cache
+    groups:
+      cache:
+        expire-after-write-seconds: 300 # number of seconds Access waits before deleting an entry from the cache
+    scim:
+      no-content-on-group-update: false # Return no-content (204) on group update request (on PATCH '/scim/v2/Groups/{group}')
+    jfrog-client-login:
+      cache:
+        expire-after-write-seconds: 300 # number of seconds Access waits before deleting an entry from the cache
+        maximum-size: 10000              # maximum number of entries allows in the cache
+    saml:
+      request:
+        cache:
+          expire-after-write-seconds: 300 # number of seconds Access waits before deleting an entry from the cache
+      synchronize-ldap-groups: false       # when set to true and there are ldap group settings in saml setting, upon login of saml user who also exist in ldap the ldap groups will be synced alongside the saml groups
+      persist-user-groups: true       # when set to true, the groups of the user will be associated with the groups of the saml provider
+    ldap:
+      connect-timeout-millis: 10000 # time to wait (ms) before giving up when trying to reach the LDAP server. Default value: 10000.
+      read-timeout-millis: 15000    # time to wait (ms) before giving up on a response from the LDAP server after an authentication request has been successfully sent. Default value: 15000.
+      pool-timeout-millis: -1       # number of milliseconds that an idle connection may remain in the pool without being closed and removed from the pool.
+      referral-strategy: follow     # LDAP referral strategy (value can be either 'follow', 'ignore', 'throw'). Default value: follow.
+      force-group-member-att-full-dn: false # When set to true, will set special filter for ldap group search for servers which does not allow the member attribute to be UID. Default value: false.
+      apply-headless-validation: true # When set to false, access wouldn't update ldap user from ldap server on api key or token based authentication. Default value: true.
+      token-expiry-refresh-user-limit-seconds: 1800 # time to wait (s) from now, before user's token would be considered outdated for refresh ldap user purpose. Default value: 1800.
+      paging:
+        max-page-size: 1000 # size of the groups batch to fetch from ldap server. Default value is 1000.
+        blacklist-expire-after-write-minutes: 10 # blacklist cache expiration period (minutes). Default value is 10.
+      group:
+        clean-on-fail: true # When set to true, removes user associated Groups in case of fail. Default value is true.
+        search:
+          disable-attributes-limitation: false # When set to false, then search controls will set returning attributes. Default value is false.
+          filter-threshold: 0 # if groups size is more than this threshold then add special filters for performance. Default value is 0.
+    crowd:
+      group-batch-size: 1000 # size of the groups batch to fetch from crowd server
+      validation-factors-enabled: false # When set to false, validation factors won't be checked on validation of the SSO token. ValidationFactors that will be checked: remoteAddress, forwardedForHeader. Default value: false.
+      cache-expiry-secs: 300 # period (seconds) crowd client cache expiration
+    mtls: # Mutual-TLS authentication configuration
+      enabled: false                      # if true then mTLS is enabled
+      header-name: X-JFrog-Client-Cert    # name of the HTTP header that contains the client certificate
+      cache-expiry-secs: 100              # period (seconds) during which a successful mTLS authentication should be considered valid
+      extraction-regex: (.*)              # regular expression used to extract the username from the certificate's subject CN
+      no-auto-create-users: false         # avoid automatic creation of users in the system if they do not exist
+      allow-user-to-access-profile: false # allow created users (based on the flag above) access their profile page in the UI
+      sync-ldap-groups: false             # automatically associate the authenticated user with groups returned from LDAP
+    verify-password-policy: false # when set to true, any basic authentication will be verified against the configured password policy
+    oauth:
+      auto-pair-users: true # if true then automatic pairing users is enabled
+      skip-user-info-call: false # if true then skips the call for /userinfo endpoint
+      use-access-token: false # if true then uses access_token instead of id_token for auth process
+      populate-groups-from-token: false # if true then populates userinfo with groups from oidc token
+      claim-mapping:
+        email: ""
+        username: ""
+        groups: ""
+  oidc:
+    enforce-tls: true             # When set to true,
+    connect-timeout-millis: 10000 # time to wait (ms) before giving up when trying to reach the OIDC server. Default value: 10000.
+    read-timeout-millis: 10000    # time to wait (ms) before giving up on a response from the OIDC server. Default value: 10000.
+    max-expiry-seconds: 86400     # max expiry period (seconds)
+    cache:
+      expire-after-write-seconds: 86400 # number of seconds Access waits before deleting an entry from the cache
+      maximum-size: 10000                # maximum number of entries allows in the cache
+    jwks:
+      cache:
+        expire-after-write-seconds: 86400 # number of seconds Access waits before deleting an entry from the cache
+        maximum-size: 10000                # maximum number of entries allows in the cache
+  aws:
+    connect-timeout-millis: 10000 # time to wait (ms) before giving up when trying to reach the AWS server. Default value: 10000.
+    read-timeout-millis: 10000    # time to wait (ms) before giving up on a response from the AWS server. Default value: 10000.
+    number-of-retries: 3          # maximum number of retries against AWS server
+    use-proxy: false             # when set to true, Access will use the default proxy settings to connect to AWS
+  affected-entity-extractor:
+    invalidate-all-user-groups-on-user-update: false # if true all user groups will be invalidated when a user is modified, otherwise only modified groups will be invalidated
+token:
+  refresh-expiry: 86400         # grace period (seconds) during which an expired token can still be refreshed. Must be positive.
+  default-expiry: 31536000      # default expiry period (seconds) when token expiry is set to null. When set to zero, default expiry is not forced. Must be non-negative. Must comply with ('max-expiry' >= 'default-expiry').
+  max-expiry: 0                 # max expiry period (seconds) When max expiry is bigger than zero, the user's token expiry will be limited to the max expiry value. When set to zero, the user's token expiry will not be limited with a higher boundary. This setting does not affect the restriction on non-admin users to create a non-revocable token. Must be non negative. Must comply with ('max-expiry' >= 'default-expiry').
+  allow-refreshable: true       # when disabled, all the user tokens will be created as non refreshable.
+  allow-basic-auth: false       # when enabled, allow basic authentication for create token api
+  default-expiry-internal: 3600 # default expiry period (seconds) when -internal- token expiry is set to null. Must be positive.
+  cache:
+    expire-after-write-seconds: 60  # number of seconds Access waits before deleting an entry from the cache
+    maximum-size: 1000              # maximum number of tokens Access allows in the cache
+  revocation:
+    minimum-revocable-expiry: 21600    # DEPRECATED - Please use 'revocable-expiry-threshold' instead - (seconds) token with expiry (expirationTime-issuedAt) below this value will not be revocable (tokens without expiry are always revocable). Setting it to -1 to make all tokens with expiry non-revocable (old default).
+    revocable-expiry-threshold: 21600  # Available from Artifactory 7.8.0 - (seconds) token with expiry (expirationTime-issuedAt) below this value will not be revocable (tokens without expiry are always revocable). Setting it to -1 to make all tokens with expiry non-revocable. To prevent Circle of Trust and Access Federation token revocation issues, set this parameter above 120 seconds.
+  persistency:
+    persistent-expiry-threshold: 10800 # Available from Artifactory 7.8.0 - (seconds) token with expiry (expirationTime-issuedAt) below this value will not be persistent. Setting it to zero or a negative value means that all the newly created tokens will be persistent. Be aware that lowering this value will effectively revoke all tokens with expiry below the old value and above the new revocable-expiry-threshold.
+  delete-with-user: true          # if should delete user tokens when deleting user.
+  block-simultaneous-login: false # when set to true, Access will revoke User's session tokens when a new session token is created for the same user
+  integration-secret-expiry-secs: 0 # Expiry period of the secret token. In seconds. Default: 0. 0 means never expires.
+  user-invitation-token-expiry-secs: 2592000 # The user's invitation token expiry period. In seconds. Default: 30 days. 0 means never expires.
+  user-token-default-revocable: false # when set to true, all user token will be revocable by default, thus not working with circle of trust if expiry is higher than "revocable-expiry-threshold" on target
+  access-communication-token-expiry-secs: 120 # Expiry of the internal tokens used to communicate with other Access instances
+  last-used-enabled: false # When set to true, Access will update the last used time of the token on the token exists (verify) flow
+  last-used-threshold: 7200 # minimum difference (in seconds) with previous lastUsed timestamp after which lastUsed will be updated - used to limit number of updates
+task:
+  revoke-expired-tokens-cron: "0 0 0/1 * * ?"  # cron expression defining when the "revoke expired token" job should run. disable the job by using "-". when the default value is set the seconds & minutes of the cron job are randomly generated.
+  send-usage-cron: "0 0 23 * * ?"              # cron expression defining when the "send usage" job should run
+  heartbeat:
+    interval-seconds: 5         # interval between successive runs of the heartbeat job
+    consider-stale-seconds: 30  # the time period (seconds) a server can remain unresponsive before being considered stale in the cluster
+  stale-admin-revoke:
+    interval-seconds: 3600         # interval between successive runs of the stale admin revoke job, e.g. once an hour
+    consider-stale-seconds: 604800 # the time period (seconds) since the last heartbeat was registered in the topology, so is considered stale, e.g. every 7 days
+    excluded-service-types: [ "jfmc" ] # this will exclude the service types in the stale cleanup job
+  load-certificates-seconds: 30    # period of time in seconds when to look if there are any new "trusted certificates"
+  federation-keepalive-interval-seconds: 86400 # interval between successive runs of federation server keepalive job, e.g. once a day
+  scheduler-thread-pool-size: 9    # thread pool size for access task scheduler
+  router-register-number-retries: 3000    # number of retries when registering on the router
+cluster:
+  sync:
+    timeout-millis: 100                     # initial time (ms) to wait before retrying a request
+    socket-timeout-millis: 5000             # time to wait (ms) before giving up on executing a REST call on another server
+    exponential-backoff-multiplier: 2       # number by which the retry timeout should be multiplied before a subsequent retry. For example, by default, the third retry will happen after 200 ms
+    number-of-retries: 3                    # maximum number of retries
+    backoff-max-delay-millis: 1000          # maximum time between successive retries regardless of other settings
+    force-rest: false                       # whether to force rest in grpc sync
+    force-grpc: false                       # whether to force grpc in grpc sync when syncing over https
+    startup-sanity-retry: 400               # maximum number of retries for validating self ping via router
+    maximum-future-time-diff-millis: 60000  # maximum difference between previous data timestamp and received data timestamp that is allowed 
+  join:
+    router-check-url-timeout-millis: 3000 # connection timeout (ms) for validating router responsiveness in url 'check-url'
+environments:
+  global-limit: 30 # Number of global environments allowed.
+  project-limit: 30 # Number of environments allowed to create in each project.
+global-role-limit: 30 # Number of global roles allowed (predefined+custom)
+project:
+  cache:
+    expire-after-write-seconds: 3600 # number of seconds Access waits before deleting an entry from the cache
+    maximum-size: 10000              # maximum number of entries allows in the cache
+  socket-timeout-millis: 10000       # time to wait (ms) before giving up on executing a REST call on another server
+  connect-timeout-millis: 10000      # time to wait (ms) before giving up on connecting to another server
+  role-limit: 30 # Number of roles allowed to create in each project.
+  db-batch-size: 100 # project batch size to fetch projects from DB.
+federation:
+  outbound: # outbound configuration specifies parameters for sending data
+    entity-types-to-sync: # entity types to sync as part of federation (default - used if not configured for server)
+      - users
+      - groups
+      - permissions
+      - tokens
+    exclude-users: [ "admin","access-admin","xray" ] # do not put this user in the federated server (must be an array)
+    buffer-wait-millis: 30000  # amount of time (ms) data should be accumulated before being sent
+    buffer-max-size: 500       # maximum number of events that can be accumulated before triggering sending of data
+    db-page-size: 500          # number of rows to read from db each time during full broadcast
+    consider-stale-hours: 168  # time (hours) server can remain unresponsive before being considered stale
+    max-stored-events: -1 # Number of events that can be stored in DB, default -1 - unlimited
+    maximum-future-time-diff-millis: 60000  # maximum difference between received data timestamp to current timestamp of the server that is allowed
+    timeout-millis: 10000              # initial wait between retries
+    exponential-backoff-multiplier: 2  # number by which the retry timeout should be multiplied before a subsequent retry. For example, by default, the third retry will happen after 6000 ms
+    initial-server-grace-period-millis: 1000 # how long to wait for the first query (due to load time etc)
+    number-of-retries: 3               # maximum number of retries
+    backoff-max-delay-millis: 10000    # maximum time between successive retries regardless of other settings
+    delay-on-error-millis: 300000      # time to wait (ms) after an error occurred
+    socket-timeout-millis: 30000       # time to wait (ms) before giving up on executing a REST call on another server
+    connect-timeout-millis: 10000       # time to wait (ms) before giving up on connecting to another server
+    delete-stale-events-factor: 2.0    # how much to multiply consider-stale-hours before deleting any federation events, even if not sent
+    auto-full-sync-recovered-servers: false # whether to automatically full sync recovered stale servers
+    servers:
+      - name: hello-1                    # the name of the target server
+        url: "http:#example.com/access"  # the target server url
+        active: true                     # whether the federation to this server is enabled or not
+        entity-types-to-sync: # entity types to sync as part of federation. if not configured - fallback to outbound entity types to sync
+          - users
+          - groups
+          - permissions
+          - tokens
+        permission-filters: # include and exclude patterns filtering permissions to federate per server
+          include-patterns:
+            - ".*a.*"
+            - ".*b.*"
+          exclude-patterns:
+            - ".*aa.*"
+        # Note! This feature is experimental. We recommend reaching out to JFrog support for assistance with configuring this, as it may affect other federation setups.
+        group-filters: # include and exclude patterns filtering groups to federate per server
+          include-patterns:
+            - ".*a.*"
+            - ".*b.*"
+          exclude-patterns:
+            - ".*aa.*"
+        force-override: true            # if true then the target (if access >= v7.8 or >= 6.21.1) will always erase local changes even if updated
+  #      - name: hello-2                    # you can configure any number of target servers
+  #        url: "http:#example2.com/access"
+  inbound: # inbound configuration specifies receiving data
+    number-of-retries: 3  # number of retries to consume the incoming data
+    service-id-mapping:
+      - from: jfrt@1234567890abcdef    # service id to change from for permissions and tokens
+        to: jfrt@fedcba0987654321      # service id to change to
+      - from: jfbt@abcdefabcdefabcdef  # any number of server mappings can be specified
+        to: jfbt@aaaaaaaaaaaaaaaaa
+    backoff-max-delay-millis: 30000   # maximum time between successive retries regardless of other settings
+    exponential-backoff-multiplier: 2 # number by which the retry timeout should be multiplied before a subsequent retry. For example, by default, the third retry will happen after 6000 ms
+    timeout-millis: 1000              # initial wait between retries
+    permissions-resource-rename:
+      - filter: "^docker-([A-Z]*)$"   # pattern that will try to match the repository keys on incommming permission change
+        map: "CN"                     # replacement for the capturing group of the regex
+      - filter: "^mvn-([A-Z]*)$"
+        map:                          # empty will remove the capturing group
+    forward-propagation: false        # Whether to forward federation changes to other servers or not, avoid combine with force-override to prevent circular propagation
+    allow-partial-entity-sync: false  # Whether to allow partial entity sync, based on latest timestamp
+proxy:
+  host: "localhost"     # proxy's host
+  port: 4567            # proxy's port
+db:
+  batch-size: 2000
+  startup-check-enabled: true # If enabled, access will run some check on the DB setup at startup.
+  fail-readiness-if-read-only: false # If enabled, access will fail readiness check if the DB is read-only, supported only by postgresql.
+licenses: # should only be set by Artifactory
+  - server-name: "hello"
+    key: "veryLongLicense"
+central-integrations: # Central integrations configuration
+  enabled: true  # Whether to enable the central integrations feature
+  central-request-connect-timeout-ms: 10000   # HTTP connection timeout (ms). Default: 10000.
+  central-request-retries: 3                  # Number of retries for central integrations requests. Default: 3.
+  central-request-socket-timeout-ms: 10000    # HTTP socket timeout (ms). Default: 10000.
+  integrations: # List of integrations to create
+    - type: "Github" # The type of the integration to create
+      name: "Github Integration" # The name of the integration
+      redirect-uri: "http://localhost:1234/redirect" # The redirect URI to use for the integration
+      callback-uri: "http://localhost:2926/callback" # The callback URI to use for the integration
+      revocation-uri: "http://localhost:4321/revoke" # The revocation URI to use for the integration
+      external-uri: "https://github.com/apps/jfroggithub" # The URI to the external integration, e.g. the GitHub app URL.
+integrations-enabled: true # Default: true
+integration-templates: # list of possible integrations to create
+  - id: "1" # The id of the integration template, to save a reference back from the integration.
+    name: "my integration" # The name of the integration as will appear in the UI when creating a new integration.
+    redirect-uri: "https://my-jfrog-integrations.com/callback" # The redirect-uri that will direct users back to the integration client with the authorization code.
+    scope: "applied-permissions/user" # Only this scope is currently supported.
+    internal: false # Optional. Default false. Indicates whether it's an internal template, meaning will not be returned to UI unless specifically asked to include internal templates.
+    custom: false #Optional. new integration can use this template and provide its own redirect-uri
+max-config-files-to-retain: 10  # maximum number of configuration file versions to save after being updated
+schema-version: 2         # Mark the configuration schema version. If it's not the latest version, a migration operation will be performed.
+  do-not-import-this-file   # Ignore: a marker to prevent import of this file
+crt-grace-millis-between-writes: 5000 # Default: 5000
+notifications: # Email notification configuration.
+  password-expiry: # Password expiry configuration, check security.user-lock-policy.password-expiry-days.
+    enabled: true # Whether to send remaining email for password expiry or not.
+    days-before: 5 # Days before user's password is being expired to start notify.
+events: # Settings for the JFrog Event client
+  enabled: true # Whether to enable the JFrog Event integration. Default: true.
+  connection-timeout-seconds: 60 # HTTP connection timeout (seconds). Default: 60.
+  token-rotation-seconds: 600 # Generated Access tokens lifetime, between 60 (= 1 minute) and 604800 (= 7 days). Default: 600.
+multi-tenant: # Multi-tenant related config
+  maximum-cache-size: 500 # Maximum size of multi-tenant aware caches
+permissions: # Permissions related config
+  allow-admin-access-to-permissions-v1-api: false # Open V1 permissions API to admin token. By default, it is only for service admin token.
+  # manage-user-permission-type will determine the type of permissions that non admin users with manage permissions can grant to other users.
+  # exclude-manage (default) - Users with manage permissions can grant only permissions that they have, except for manage permissions
+  # any-action-excluding-manage - users with manage permissions can grant any permissions, except for manage permissions
+  # any-action-including-manage - users with manage permissions can grant any permissions, including manage permissions
+  manage-user-permission-type: "exclude-manage"

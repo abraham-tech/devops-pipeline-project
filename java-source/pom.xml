@@ -60,18 +60,92 @@
 	</dependencies>
 
 	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+                <finalName>${project.artifactId}</finalName>
+            </configuration>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.1</version>
+            <configuration>
+                <source>11</source>
+                <target>11</target>
+            </configuration>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.22.2</version>
+            <configuration>
+                <skipTests>false</skipTests>
+                <includes>
+                    <include>**/*Test.java</include>
+                </includes>
+            </configuration>
+        </plugin>
+        <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.7</version>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>prepare-agent</goal>
+                    </goals>
+                </execution>
+                <execution>
+                    <id>report</id>
+                    <phase>test</phase>
+                    <goals>
+                        <goal>report</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+
+<repositories>
+    <repository>
+        <id>artifactory</id>
+        <name>iwayq-libs-release</name>
+        <url>http://localhost:8082/artifactory/iwayq-libs-release</url>
+        <releases>
+            <enabled>true</enabled>
+        </releases>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+    </repository>
+    <repository>
+        <id>artifactory-snapshots</id>
+        <name>iwayq-libs-snapshot</name>
+        <url>http://localhost:8082/artifactory/iwayq-libs-snapshot</url>
+        <releases>
+            <enabled>false</enabled>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+        </snapshots>
+    </repository>
+</repositories>
 <distributionManagement>
     <repository>
-        <id>central</id>
+        <id>artifactory</id>
         <name>iwayq-libs-release-local</name>
-        <url>http://18.207.136.250:8082/artifactory/iwayq-libs-release-local</url>
+        <url>http://localhost:8082/artifactory/iwayq-libs-release-local</url>
     </repository>
+    <snapshotRepository>
+        <id>artifactory</id>
+        <name>iwayq-libs-snapshot-local</name>
+        <url>http://localhost:8082/artifactory/iwayq-libs-snapshot-local</url>
+    </snapshotRepository>
+</distributionManagement>
 </distributionManagement>
 </project>

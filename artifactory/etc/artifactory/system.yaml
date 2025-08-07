@@ -1,0 +1,17 @@
+shared:
+  database:
+    type: postgresql
+    driver: org.postgresql.Driver
+    url: jdbc:postgresql://postgresql:5432/artifactory?sslmode=disable
+    username: artifactory
+    password: artifactory
+    maxOpenConnections: 50
+    maxIdleConnections: 5
+    connectionTimeout: 10000
+    idleConnectionTestPeriod: 30000
+    leakDetectionThreshold: 60000
+    testOnBorrow: true
+    validationQuery: SELECT 1
+    validationInterval: 30000
+    defaultTransactionIsolation: 1
+    connectionProperties: autocommit=false;autoReconnect=true;

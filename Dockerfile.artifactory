@@ -1,0 +1,10 @@
+FROM docker.bintray.io/jfrog/artifactory-oss:7.41.13
+
+# Install PostgreSQL JDBC driver
+USER root
+RUN curl -o /opt/jfrog/artifactory/app/artifactory/tomcat/lib/postgresql-42.2.24.jar https://jdbc.postgresql.org/download/postgresql-42.2.24.jar
+
+# Set proper permissions
+RUN chown -R artifactory:artifactory /opt/jfrog/artifactory/app/artifactory/tomcat/lib/postgresql-42.2.24.jar
+
+USER artifactory

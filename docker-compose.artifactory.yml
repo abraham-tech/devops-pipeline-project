@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  artifactory:
+    image: releases-docker.jfrog.io/jfrog/artifactory-oss:7.63.8
+    container_name: artifactory
+    ports:
+      - "8081:8081"
+      - "8082:8082"
+    environment:
+      - ARTIFACTORY_EXTRA_JAVA_OPTIONS=-Xms512m -Xmx2g
+    volumes:
+      - artifactory_data:/var/opt/jfrog/artifactory
+    networks:
+      - devops-network
+    restart: unless-stopped
+
+volumes:
+  artifactory_data:
+
+networks:
+  devops-network:
+    driver: bridge
+    name: devops-network
