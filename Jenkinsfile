@@ -104,39 +104,6 @@ pipeline {
                             <activeProfiles>
                                 <activeProfile>central</activeProfile>
                             </activeProfiles>
-                            <profiles>
-                                <profile>
-                                    <id>artifactory</id>
-                                    <repositories>
-                                        <repository>
-                                            <id>central</id>
-                                            <url>${ARTIFACTORY_URL}/${RESOLUTION_REPO}</url>
-                                            <releases>
-                                                <enabled>true</enabled>
-                                                <updatePolicy>always</updatePolicy>
-                                            </releases>
-                                            <snapshots>
-                                                <enabled>false</enabled>
-                                            </snapshots>
-                                        </repository>
-                                    </repositories>
-                                    <pluginRepositories>
-                                        <pluginRepository>
-                                            <id>central</id>
-                                            <url>${ARTIFACTORY_URL}/${RESOLUTION_REPO}</url>
-                                            <releases>
-                                                <enabled>true</enabled>
-                                            </releases>
-                                            <snapshots>
-                                                <enabled>false</enabled>
-                                            </snapshots>
-                                        </pluginRepository>
-                                    </pluginRepositories>
-                                </profile>
-                            </profiles>
-                            <activeProfiles>
-                                <activeProfile>artifactory</activeProfile>
-                            </activeProfiles>
                         </settings>
                         """
                         

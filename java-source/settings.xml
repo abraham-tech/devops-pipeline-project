@@ -26,6 +26,7 @@
       <repositories>
         <repository>
           <id>central</id>
+          <name>iwayq-libs-release</name>
           <url>http://10.0.0.98:8082/artifactory/iwayq-libs-release</url>
           <releases>
             <enabled>true</enabled>
@@ -35,16 +36,41 @@
             <enabled>false</enabled>
           </snapshots>
         </repository>
+        <repository>
+          <id>artifactory-snapshots</id>
+          <name>iwayq-libs-snapshot</name>
+          <url>http://10.0.0.98:8082/artifactory/iwayq-libs-snapshot</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+          </snapshots>
+        </repository>
       </repositories>
       <pluginRepositories>
         <pluginRepository>
           <id>central</id>
+          <name>iwayq-libs-release</name>
           <url>http://10.0.0.98:8082/artifactory/iwayq-libs-release</url>
           <releases>
             <enabled>true</enabled>
           </releases>
           <snapshots>
             <enabled>false</enabled>
+          </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+          <id>artifactory-snapshots</id>
+          <name>iwayq-libs-snapshot</name>
+          <url>http://10.0.0.98:8082/artifactory/iwayq-libs-snapshot</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
           </snapshots>
         </pluginRepository>
       </pluginRepositories>
