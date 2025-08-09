@@ -76,14 +76,39 @@ pipeline {
                                     <password>Admin123</password>
                                 </server>
                             </servers>
-                            <mirrors>
-                                <mirror>
+                            <profiles>
+                                <profile>
                                     <id>artifactory</id>
-                                    <name>Artifactory</name>
-                                    <url>${ARTIFACTORY_URL}/${RESOLUTION_REPO}</url>
-                                    <mirrorOf>central</mirrorOf>
-                                </mirror>
-                            </mirrors>
+                                    <repositories>
+                                        <repository>
+                                            <id>central</id>
+                                            <url>${ARTIFACTORY_URL}/${RESOLUTION_REPO}</url>
+                                            <releases>
+                                                <enabled>true</enabled>
+                                                <updatePolicy>always</updatePolicy>
+                                            </releases>
+                                            <snapshots>
+                                                <enabled>false</enabled>
+                                            </snapshots>
+                                        </repository>
+                                    </repositories>
+                                    <pluginRepositories>
+                                        <pluginRepository>
+                                            <id>central</id>
+                                            <url>${ARTIFACTORY_URL}/${RESOLUTION_REPO}</url>
+                                            <releases>
+                                                <enabled>true</enabled>
+                                            </releases>
+                                            <snapshots>
+                                                <enabled>false</enabled>
+                                            </snapshots>
+                                        </pluginRepository>
+                                    </pluginRepositories>
+                                </profile>
+                            </profiles>
+                            <activeProfiles>
+                                <activeProfile>artifactory</activeProfile>
+                            </activeProfiles>
                         </settings>
                         """
                         
@@ -96,12 +121,19 @@ pipeline {
                             mvnCmd += " -DskipTests"
                         }
                         
+                        // Add debug information
+                        echo "Using Artifactory URL: ${ARTIFACTORY_URL}"
+                        echo "Using Repository: ${RESOLUTION_REPO}"
+                        
+                        // Run Maven with debug output
                         sh """
                             ${mvnCmd} \
                                 -s artifactory-settings.xml \
                                 -Dartifactory.publish.artifacts=false \
                                 -Dmaven.wagon.http.ssl.insecure=true \
-                                -Dmaven.wagon.http.ssl.allowall=true
+                                -Dmaven.wagon.http.ssl.allowall=true \
+                                -X \
+                                -e
                         """
                     }
                     
