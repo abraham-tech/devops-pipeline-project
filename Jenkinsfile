@@ -119,47 +119,51 @@ pipeline {
             steps {
                 dir('java-source') {
                     script {
-                        // Generate build info
-                        def buildInfo = """
-                        {
-                            "name": "${env.APP_NAME}",
-                            "number": "${env.BUILD_NUMBER}",
-                            "started": "${new Date().format("yyyy-MM-dd'T'HH:mm:ss.SSSZ")}",
-                            "url": "${env.BUILD_URL}",
-                            "modules": [
-                                {
-                                    "id": "${env.APP_NAME}:${env.VERSION}",
-                                    "artifacts": [
-                                        {
-                                            "type": "war",
-                                            "name": "${env.APP_NAME}-${env.VERSION}.war"
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                        """
-                        
-                        // Write build info to file
-                        writeFile file: 'build-info.json', text: buildInfo
-                        
-                        // Upload artifact to Artifactory
-                        sh """
-                            # Upload the WAR file
-                            curl -u admin:Admin123 \
-                                -X PUT \
-                                "${env.ARTIFACTORY_URL}/${env.DEPLOY_REPO}/com/iwayq/${env.APP_NAME}/${env.VERSION}/${env.APP_NAME}-${env.VERSION}.war" \
-                                -T target/*.war
+                        try {
+                            // Generate build info
+                            def buildInfo = """
+                            {
+                                "name": "${env.APP_NAME}",
+                                "number": "${env.BUILD_NUMBER}",
+                                "started": "${new Date().format("yyyy-MM-dd'T'HH:mm:ss.SSSZ")}",
+                                "url": "${env.BUILD_URL}",
+                                "modules": [
+                                    {
+                                        "id": "${env.APP_NAME}:${env.VERSION}",
+                                        "artifacts": [
+                                            {
+                                                "type": "war",
+                                                "name": "${env.APP_NAME}-${env.VERSION}.war"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                            """
                             
-                            # Publish build info
-                            curl -u admin:Admin123 \
-                                -X PUT \
-                                "${env.ARTIFACTORY_URL}/api/build" \
-                                -H "Content-Type: application/json" \
-                                -d @build-info.json
-                        """
-                        
-                        echo "Successfully published ${env.APP_NAME}-${env.VERSION}.war to Artifactory"
+                            // Write build info to file
+                            writeFile file: 'build-info.json', text: buildInfo
+                            
+                            // Upload artifact to Artifactory
+                            sh """
+                                # Upload the WAR file
+                                curl -u admin:Admin123 \
+                                    -X PUT \
+                                    "${env.ARTIFACTORY_URL}/${env.DEPLOY_REPO}/com/iwayq/${env.APP_NAME}/${env.VERSION}/${env.APP_NAME}-${env.VERSION}.war" \
+                                    -T target/*.war
+                                
+                                # Publish build info
+                                curl -u admin:Admin123 \
+                                    -X PUT \
+                                    "${env.ARTIFACTORY_URL}/api/build" \
+                                    -H "Content-Type: application/json" \
+                                    -d @build-info.json
+                            """
+                            
+                            echo "Successfully published ${env.APP_NAME}-${env.VERSION}.war to Artifactory"
+                        } catch (Exception e) {
+                            error "Failed to publish to Artifactory: ${e.message}"
+                        }
                     }
                 }
             }
