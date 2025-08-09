@@ -27,6 +27,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   db:
     image: postgres:13
@@ -46,6 +48,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   artifactory:
     image: docker.bintray.io/jfrog/artifactory-oss:latest
@@ -60,7 +64,10 @@ services:
       - ARTIFACTORY_EXTRA_JAVA_OPTIONS=-Xms512m -Xmx2g
     networks:
       - sonarnet
+      - devops-network
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   artifactory-db:
     image: postgres:13
@@ -79,6 +86,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   jenkins:
     image: jenkins/jenkins:lts
@@ -90,15 +99,20 @@ services:
       - jenkins_home:/var/jenkins_home
     networks:
       - sonarnet
+      - devops-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080"]
       interval: 30s
       timeout: 10s
       retries: 5
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 networks:
   sonarnet:
+    driver: bridge
+  devops-network:
     driver: bridge
 
 volumes:
