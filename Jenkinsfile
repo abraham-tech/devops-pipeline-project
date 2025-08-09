@@ -69,6 +69,14 @@ pipeline {
                         // Create Maven settings with Artifactory configuration
                         def settings = """
                         <settings>
+                            <mirrors>
+                                <mirror>
+                                    <id>artifactory</id>
+                                    <name>Artifactory</name>
+                                    <url>${ARTIFACTORY_URL}/${RESOLUTION_REPO}</url>
+                                    <mirrorOf>central,jcenter</mirrorOf>
+                                </mirror>
+                            </mirrors>
                             <servers>
                                 <server>
                                     <id>${ARTIFACTORY_SERVER_ID}</id>
@@ -125,13 +133,20 @@ pipeline {
                         echo "Using Artifactory URL: ${ARTIFACTORY_URL}"
                         echo "Using Repository: ${RESOLUTION_REPO}"
                         
-                        // Run Maven with debug output
+                        // Run Maven with debug output and allow HTTP repositories
                         sh """
                             ${mvnCmd} \
                                 -s artifactory-settings.xml \
                                 -Dartifactory.publish.artifacts=false \
                                 -Dmaven.wagon.http.ssl.insecure=true \
                                 -Dmaven.wagon.http.ssl.allowall=true \
+                                -Dmaven.wagon.http.ssl.ignore.validity.dates=true \
+                                -Dmaven.wagon.source.http.ssl.insecure=true \
+                                -Dmaven.wagon.source.https.ssl.insecure=true \
+                                -Dmaven.wagon.source.https.ssl.allowall=true \
+                                -Dmaven.wagon.source.https.ssl.ignore.validity.dates=true \
+                                -Dmaven.wagon.retryHandler.count=3 \
+                                -Dmaven.wagon.rto=10000 \
                                 -X \
                                 -e
                         """
