@@ -66,24 +66,44 @@ pipeline {
             steps {
                 dir('java-source') {
                     script {
-                        // Create Maven settings with Artifactory configuration
+                        // Create minimal Maven settings to use Maven Central directly
                         def settings = """
                         <settings>
+                            <!-- Disable all mirrors -->
                             <mirrors>
                                 <mirror>
-                                    <id>artifactory</id>
-                                    <name>Artifactory</name>
-                                    <url>${ARTIFACTORY_URL}/${RESOLUTION_REPO}</url>
-                                    <mirrorOf>central,jcenter</mirrorOf>
+                                    <id>central</id>
+                                    <name>Maven Central</name>
+                                    <url>https://repo.maven.apache.org/maven2</url>
+                                    <mirrorOf>central</mirrorOf>
                                 </mirror>
                             </mirrors>
-                            <servers>
-                                <server>
-                                    <id>${ARTIFACTORY_SERVER_ID}</id>
-                                    <username>admin</username>
-                                    <password>Passme@1234</password>
-                                </server>
-                            </servers>
+                            <!-- No server configurations needed for public Maven Central -->
+                            <servers/>
+                            <profiles>
+                                <profile>
+                                    <id>central</id>
+                                    <repositories>
+                                        <repository>
+                                            <id>central</id>
+                                            <url>https://repo.maven.apache.org/maven2</url>
+                                            <releases><enabled>true</enabled></releases>
+                                            <snapshots><enabled>false</enabled></snapshots>
+                                        </repository>
+                                    </repositories>
+                                    <pluginRepositories>
+                                        <pluginRepository>
+                                            <id>central</id>
+                                            <url>https://repo.maven.apache.org/maven2</url>
+                                            <releases><enabled>true</enabled></releases>
+                                            <snapshots><enabled>false</enabled></snapshots>
+                                        </pluginRepository>
+                                    </pluginRepositories>
+                                </profile>
+                            </profiles>
+                            <activeProfiles>
+                                <activeProfile>central</activeProfile>
+                            </activeProfiles>
                             <profiles>
                                 <profile>
                                     <id>artifactory</id>
@@ -133,20 +153,26 @@ pipeline {
                         echo "Using Artifactory URL: ${ARTIFACTORY_URL}"
                         echo "Using Repository: ${RESOLUTION_REPO}"
                         
-                        // Run Maven with debug output and allow HTTP repositories
+                        // Run Maven with direct Maven Central access
                         sh """
+                            # Clean any existing settings that might interfere
+                            rm -f ~/.m2/settings.xml
+                            
+                            # Run Maven with explicit Maven Central configuration
                             ${mvnCmd} \
                                 -s artifactory-settings.xml \
-                                -Dartifactory.publish.artifacts=false \
+                                -Dmaven.repo.remote.enabled=true \
+                                -Dmaven.repo.local=${env.WORKSPACE}/.m2/repository \
+                                -Dmaven.test.failure.ignore=true \
                                 -Dmaven.wagon.http.ssl.insecure=true \
                                 -Dmaven.wagon.http.ssl.allowall=true \
-                                -Dmaven.wagon.http.ssl.ignore.validity.dates=true \
-                                -Dmaven.wagon.source.http.ssl.insecure=true \
                                 -Dmaven.wagon.source.https.ssl.insecure=true \
                                 -Dmaven.wagon.source.https.ssl.allowall=true \
-                                -Dmaven.wagon.source.https.ssl.ignore.validity.dates=true \
                                 -Dmaven.wagon.retryHandler.count=3 \
                                 -Dmaven.wagon.rto=10000 \
+                                -Dmaven.remote.repositories=https://repo.maven.apache.org/maven2@id=central \
+                                -DrepositorySystemSession.offline=false \
+                                -Dmaven.repo.remote.repositories=https://repo.maven.apache.org/maven2 \
                                 -X \
                                 -e
                         """
