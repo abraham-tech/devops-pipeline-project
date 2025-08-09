@@ -9,7 +9,7 @@ pipeline {
     environment {
         // Application configuration
         APP_NAME = 'iwayqapp'
-        VERSION = '1.0.${BUILD_NUMBER}'
+        VERSION = "1.0.${BUILD_NUMBER}"
 
         // JFrog Artifactory Configuration
         ARTIFACTORY_SERVER_ID = 'artifactory'
