@@ -31,7 +31,7 @@ pipeline {
     
     // This ensures the settings.xml is available before the build starts
     parameters {
-        booleanParam(name: 'SKIP_TESTS', defaultValue: true, description: 'Skip running tests')
+        booleanParam(name: 'SKIP_TESTS', defaultValue: false, description: 'Skip running tests')
     }
     
     stages {
