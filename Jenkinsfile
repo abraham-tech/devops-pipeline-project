@@ -147,6 +147,18 @@ pipeline {
                     
                     // Archive the built artifact
                     archiveArtifacts 'target/*.war'
+                }
+            }
+        }
+        
+        // Stage 3: Run Tests
+        stage('Test') {
+            when {
+                expression { !params.SKIP_TESTS }
+            }
+            steps {
+                dir('java-source') {
+                    sh 'mvn -B -Dmaven.test.failure.ignore=false test'
                     
                     // Publish test results
                     junit '**/target/surefire-reports/**/*.xml'
@@ -154,7 +166,7 @@ pipeline {
             }
         }
         
-        // Stage 3: Publish to Artifactory
+        // Stage 4: Publish to Artifactory
         stage('Publish to Artifactory') {
             steps {
                 dir('java-source') {
