@@ -12,7 +12,7 @@ pipeline {
         VERSION = '1.0.${BUILD_NUMBER}'
         
         // Artifactory configuration
-        ARTIFACTORY_URL = 'http://18.207.136.250:8082/artifactory'
+        ARTIFACTORY_URL = 'http://10.0.0.98:8082/artifactory'
         MAVEN_OPTS = '-Dmaven.repo.local=.m2/repository -Dmaven.test.failure.ignore=true'
         
         // Repository configurations
