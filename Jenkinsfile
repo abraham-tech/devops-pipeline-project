@@ -79,29 +79,29 @@ pipeline {
             steps {
                 dir('java-source') {
                     script {
-                        def buildInfo = """
+                        def buildInfo = '''
                         {
-                            "name": "${env.APP_NAME}",
-                            "number": "${env.BUILD_NUMBER}",
+                            "name": "' + env.APP_NAME + '",
+                            "number": "' + env.BUILD_NUMBER + '",
                             "buildAgent": {
                                 "name": "Jenkins",
-                                "version": "${tool 'maven'}"
+                                "version": "' + tool('maven') + '"
                             },
                             "modules": [
                                 {
-                                    "id": "${env.APP_NAME}:${env.VERSION}",
+                                    "id": "' + env.APP_NAME + ':' + env.VERSION + '",
                                     "artifacts": [
                                         {
                                             "type": "war",
-                                            "md5": "$(md5sum target/*.war | cut -d' ' -f1)",
-                                            "sha1": "$(sha1sum target/*.war | cut -d' ' -f1)",
-                                            "name": "${env.APP_NAME}-${env.VERSION}.war"
+                                            "md5": "' + sh(script: 'md5sum target/*.war | cut -d\' \' -f1', returnStdout: true).trim() + '",
+                                            "sha1": "' + sh(script: 'sha1sum target/*.war | cut -d\' \' -f1', returnStdout: true).trim() + '",
+                                            "name": "' + env.APP_NAME + '-' + env.VERSION + '.war"
                                         }
                                     ]
                                 }
                             ]
                         }
-                        """
+                        '''
                         
                         // Publish build info to Artifactory
                         sh """
