@@ -1,39 +1,39 @@
 pipeline {
     agent any
-    
+
     tools {
         maven 'maven'
         jdk 'jdk11'
     }
-    
+
     environment {
         // Application configuration
         APP_NAME = 'iwayqapp'
         VERSION = '1.0.${BUILD_NUMBER}'
-        
+
         // JFrog Artifactory Configuration
         ARTIFACTORY_SERVER_ID = 'artifactory'
         ARTIFACTORY_URL = 'http://10.0.0.98:8082/artifactory'
-        
+
         // Repository configurations
         RESOLUTION_REPO = 'iwayq-libs-release'
         DEPLOY_REPO = 'iwayq-libs-release-local'
-        
+
         // Maven configuration
         MAVEN_OPTS = '-Dmaven.repo.local=.m2/repository -Dmaven.test.failure.ignore=true -Dartifactory.publish.artifacts=false'
     }
-    
+
     options {
         skipDefaultCheckout()
         buildDiscarder(logRotator(numToKeepStr: '10'))
         timeout(time: 30, unit: 'MINUTES')
     }
-    
+
     // This ensures the settings.xml is available before the build starts
     parameters {
         booleanParam(name: 'SKIP_TESTS', defaultValue: false, description: 'Skip running tests')
     }
-    
+
     stages {
         // Stage 1: Checkout and Setup
         stage('Checkout and Setup') {
@@ -50,17 +50,17 @@ pipeline {
                         ]
                     ]
                 ])
-                
+
                 // Ensure the .m2 directory exists
                 sh 'mkdir -p ~/.m2'
-                
+
                 // Copy the settings.xml to the correct location
                 dir('java-source') {
                     sh 'cp settings.xml ~/.m2/settings.xml'
                 }
             }
         }
-        
+
         // Stage 2: Build with Maven
         stage('Build') {
             steps {
@@ -106,25 +106,25 @@ pipeline {
                             </activeProfiles>
                         </settings>
                         """
-                        
+
                         // Write settings to file
                         writeFile file: 'artifactory-settings.xml', text: settings
-                        
+
                         // Build the project with Maven
                         def mvnCmd = "mvn clean package"
                         if (params.SKIP_TESTS) {
                             mvnCmd += " -DskipTests"
                         }
-                        
+
                         // Add debug information
                         echo "Using Artifactory URL: ${ARTIFACTORY_URL}"
                         echo "Using Repository: ${RESOLUTION_REPO}"
-                        
+
                         // Run Maven with direct Maven Central access
                         sh """
                             # Clean any existing settings that might interfere
                             rm -f ~/.m2/settings.xml
-                            
+
                             # Run Maven with explicit Maven Central configuration
                             ${mvnCmd} \
                                 -s artifactory-settings.xml \
@@ -144,13 +144,13 @@ pipeline {
                                 -e
                         """
                     }
-                    
+
                     // Archive the built artifact
                     archiveArtifacts 'target/*.war'
                 }
             }
         }
-        
+
         // Stage 3: Run Tests
         stage('Test') {
             when {
@@ -159,13 +159,13 @@ pipeline {
             steps {
                 dir('java-source') {
                     sh 'mvn -B -Dmaven.test.failure.ignore=false test'
-                    
+
                     // Publish test results
                     junit '**/target/surefire-reports/**/*.xml'
                 }
             }
         }
-        
+
         // Stage 4: Publish to Artifactory
         stage('Publish to Artifactory') {
             steps {
@@ -192,26 +192,36 @@ pipeline {
                                 ]
                             }
                             """
-                            
+
                             // Write build info to file
                             writeFile file: 'build-info.json', text: buildInfo
-                            
+
                             // Upload artifact to Artifactory
-                            sh """
-                                # Upload the WAR file
-                                curl -u admin:Passme@1234 \
-                                    -X PUT \
-                                    "${env.ARTIFACTORY_URL}/${env.DEPLOY_REPO}/com/iwayq/${env.APP_NAME}/${env.VERSION}/${env.APP_NAME}-${env.VERSION}.war" \
-                                    -T target/*.war
-                                
+                            sh '''
+                                # Check if Artifactory is reachable
+                                if ! curl -s --connect-timeout 10 "${env.ARTIFACTORY_URL}/api/system/ping"; then
+                                  echo "Artifactory is not reachable!"
+                                  exit 1
+                                fi
+
+                                # List WAR files for debugging
+                                echo "Looking for WAR files in target/"
+                                ls -l target/*.war || { echo "No WAR file found!"; exit 1; }
+
+                                # Upload each WAR file found
+                                for f in target/*.war; do
+                                  echo "Uploading $f to Artifactory..."
+                                  curl -v -u admin:Passme@1234 -X PUT "${env.ARTIFACTORY_URL}/${env.DEPLOY_REPO}/com/iwayq/${env.APP_NAME}/${env.VERSION}/${env.APP_NAME}-${env.VERSION}.war" -T "$f"
+                                done
+
                                 # Publish build info
                                 curl -u admin:Passme@1234 \
                                     -X PUT \
                                     "${env.ARTIFACTORY_URL}/api/build" \
                                     -H "Content-Type: application/json" \
                                     -d @build-info.json
-                            """
-                            
+                            '''
+
                             echo "Successfully published ${env.APP_NAME}-${env.VERSION}.war to Artifactory"
                         } catch (Exception e) {
                             error "Failed to publish to Artifactory: ${e.message}"
@@ -221,7 +231,7 @@ pipeline {
             }
         }
     }
-    
+
     post {
         always {
             echo 'Pipeline completed. Check the build status.'
