@@ -199,25 +199,9 @@ pipeline {
                             // Upload artifact to Artifactory
                             sh '''
                                 #!/bin/bash
-                                set -e
-
-                                echo "Checking Artifactory connectivity with curl..."
-                                curl -v "${ARTIFACTORY_URL}/api/system/ping" || { echo "Artifactory is not reachable!"; exit 1; }
-
-                                # List WAR files for debugging
-                                echo "Looking for WAR file in target/"
-                                ls -l target/iwayQApp-1.0-RELEASE.war || { echo "WAR file not found!"; exit 1; }
-
-                                # Upload the WAR file
-                                echo "Uploading target/iwayQApp-1.0-RELEASE.war to Artifactory..."
-                                curl -v -u admin:Passme@1234 -X PUT "${ARTIFACTORY_URL}/${DEPLOY_REPO}/com/iwayq/iwayqapp/1.0.0/iwayqapp-1.0.0.war" -T target/iwayQApp-1.0-RELEASE.war
-
-                                # Publish build info
-                                curl -u admin:Passme@1234 \
-                                    -X PUT \
-                                    "${ARTIFACTORY_URL}/api/build" \
-                                    -H "Content-Type: application/json" \
-                                    -d @build-info.json
+                                curl -v "${ARTIFACTORY_URL}/api/system/ping"
+                                curl -v -u admin:Passme@1234 -T target/iwayQApp-1.0-RELEASE.war "${ARTIFACTORY_URL}/${DEPLOY_REPO}/com/iwayq/iwayqapp/1.0.0/iwayqapp-1.0.0.war"
+                                curl -u admin:Passme@1234 -X PUT "${ARTIFACTORY_URL}/api/build" -H "Content-Type: application/json" -d @build-info.json
                             '''
 
                             echo "Successfully published ${env.APP_NAME}-${env.VERSION}.war to Artifactory"
