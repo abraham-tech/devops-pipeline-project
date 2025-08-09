@@ -201,11 +201,8 @@ pipeline {
                                 #!/bin/bash
                                 set -e
 
-                                # Check if Artifactory is reachable
-                                if ! curl -s --connect-timeout 10 "${ARTIFACTORY_URL}/api/system/ping"; then
-                                  echo "Artifactory is not reachable!"
-                                  exit 1
-                                fi
+                                echo "Checking Artifactory connectivity with curl..."
+                                curl -v "${ARTIFACTORY_URL}/api/system/ping" || { echo "Artifactory is not reachable!"; exit 1; }
 
                                 # List WAR files for debugging
                                 echo "Looking for WAR files in target/"
