@@ -65,43 +65,45 @@ pipeline {
         stage('Build') {
             steps {
                 dir('java-source') {
-                    // Create Maven settings with Artifactory configuration
-                    def settings = """
-                    <settings>
-                        <servers>
-                            <server>
-                                <id>${ARTIFACTORY_SERVER_ID}</id>
-                                <username>admin</username>
-                                <password>Admin123</password>
-                            </server>
-                        </servers>
-                        <mirrors>
-                            <mirror>
-                                <id>artifactory</id>
-                                <name>Artifactory</name>
-                                <url>${ARTIFACTORY_URL}/${RESOLUTION_REPO}</url>
-                                <mirrorOf>central</mirrorOf>
-                            </mirror>
-                        </mirrors>
-                    </settings>
-                    """
-                    
-                    // Write settings to file
-                    writeFile file: 'artifactory-settings.xml', text: settings
-                    
-                    // Build the project with Maven
-                    def mvnCmd = "mvn clean package"
-                    if (params.SKIP_TESTS) {
-                        mvnCmd += " -DskipTests"
+                    script {
+                        // Create Maven settings with Artifactory configuration
+                        def settings = """
+                        <settings>
+                            <servers>
+                                <server>
+                                    <id>${ARTIFACTORY_SERVER_ID}</id>
+                                    <username>admin</username>
+                                    <password>Admin123</password>
+                                </server>
+                            </servers>
+                            <mirrors>
+                                <mirror>
+                                    <id>artifactory</id>
+                                    <name>Artifactory</name>
+                                    <url>${ARTIFACTORY_URL}/${RESOLUTION_REPO}</url>
+                                    <mirrorOf>central</mirrorOf>
+                                </mirror>
+                            </mirrors>
+                        </settings>
+                        """
+                        
+                        // Write settings to file
+                        writeFile file: 'artifactory-settings.xml', text: settings
+                        
+                        // Build the project with Maven
+                        def mvnCmd = "mvn clean package"
+                        if (params.SKIP_TESTS) {
+                            mvnCmd += " -DskipTests"
+                        }
+                        
+                        sh """
+                            ${mvnCmd} \
+                                -s artifactory-settings.xml \
+                                -Dartifactory.publish.artifacts=false \
+                                -Dmaven.wagon.http.ssl.insecure=true \
+                                -Dmaven.wagon.http.ssl.allowall=true
+                        """
                     }
-                    
-                    sh """
-                        ${mvnCmd} \
-                            -s artifactory-settings.xml \
-                            -Dartifactory.publish.artifacts=false \
-                            -Dmaven.wagon.http.ssl.insecure=true \
-                            -Dmaven.wagon.http.ssl.allowall=true
-                    """
                     
                     // Archive the built artifact
                     archiveArtifacts 'target/*.war'
