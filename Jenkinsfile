@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-      docker {
-        image 'maven:3.8.6-jdk-11'
-        args '--network host'
-      }
-    }
+    agent any
 
     tools {
         maven 'maven'
