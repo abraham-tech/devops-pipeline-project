@@ -199,13 +199,13 @@ pipeline {
                             // Upload artifact to Artifactory
                             sh """
                                 # Upload the WAR file
-                                curl -u admin:Admin123 \
+                                curl -u admin:Passme@1234 \
                                     -X PUT \
                                     "${env.ARTIFACTORY_URL}/${env.DEPLOY_REPO}/com/iwayq/${env.APP_NAME}/${env.VERSION}/${env.APP_NAME}-${env.VERSION}.war" \
                                     -T target/*.war
                                 
                                 # Publish build info
-                                curl -u admin:Admin123 \
+                                curl -u admin:Passme@1234 \
                                     -X PUT \
                                     "${env.ARTIFACTORY_URL}/api/build" \
                                     -H "Content-Type: application/json" \
