@@ -11,16 +11,8 @@ pipeline {
         APP_NAME = 'iwayqapp'
         VERSION = '1.0.${BUILD_NUMBER}'
         
-        // JFrog Artifactory configuration
-        JFROG_CLI_OFFER_CONFIG = 'false'
-        // These should be configured in Jenkins Credentials
-        ARTIFACTORY_URL = 'http://localhost:8082/artifactory'
-        ARTIFACTORY_USER = 'admin'
-        ARTIFACTORY_PASSWORD = 'Passme@1234'  // In production, use Jenkins credentials
-        
-        // Repository configurations
-        RESOLUTION_REPO = 'iwayq-libs-release'
-        DEPLOY_REPO = 'iwayq-libs-release-local'
+        // Use Maven Central directly for simplicity
+        MAVEN_OPTS = '-Dmaven.repo.local=.m2/repository -Dmaven.test.failure.ignore=true'
     }
     
     stages {
@@ -41,60 +33,18 @@ pipeline {
             }
         }
         
-        // Stage 2: Configure JFrog and Build
-        stage('JFrog Configure') {
-            steps {
-                // Install JFrog CLI if not already installed
-                sh '''
-                    if ! command -v jf &> /dev/null; then
-                        curl -fL https://install-cli.jfrog.io | sh
-                    fi
-                    
-                    # Configure JFrog CLI
-                    jf config add artifactory \
-                        --url=${ARTIFACTORY_URL} \
-                        --user=${ARTIFACTORY_USER} \
-                        --password=${ARTIFACTORY_PASSWORD} \
-                        --interactive=false
-                    
-                    # Test the connection
-                    jf rt ping
-                '''
-            }
-        }
-        
-        // Stage 3: Build and Package with JFrog
-        stage('Build') {
+        // Stage 2: Build and Test
+        stage('Build and Test') {
             steps {
                 dir('java-source') {
-                    // Build with JFrog Maven
-                    sh '''
-                        jf mvnc "mvn clean package -DskipTests=true" \
-                            --repo-resolve-releases=${RESOLUTION_REPO} \
-                            --repo-resolve-snapshots=${RESOLUTION_REPO} \
-                            --repo-deploy-releases=${DEPLOY_REPO} \
-                            --repo-deploy-snapshots=${DEPLOY_REPO}
-                        
-                        # Archive the built artifact
-                        archiveArtifacts 'target/*.war'
-                    '''
-                }
-            }
-        }
-        
-        // Stage 4: Run Tests with JFrog
-        stage('Test') {
-            steps {
-                dir('java-source') {
-                    // Run tests with JFrog Maven
-                    sh '''
-                        jf mvnc "mvn test" \
-                            --repo-resolve-releases=${RESOLUTION_REPO} \
-                            --repo-resolve-snapshots=${RESOLUTION_REPO}
-                        
-                        # Publish test results
-                        junit '**/target/surefire-reports/**/*.xml'
-                    '''
+                    // Simple Maven build with tests
+                    sh 'mvn clean package'
+                    
+                    // Archive the built artifact
+                    archiveArtifacts 'target/*.war'
+                    
+                    // Publish test results
+                    junit '**/target/surefire-reports/**/*.xml'
                 }
             }
         }
