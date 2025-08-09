@@ -205,14 +205,12 @@ pipeline {
                                 curl -v "${ARTIFACTORY_URL}/api/system/ping" || { echo "Artifactory is not reachable!"; exit 1; }
 
                                 # List WAR files for debugging
-                                echo "Looking for WAR files in target/"
-                                ls -l target/*.war || { echo "No WAR file found!"; exit 1; }
+                                echo "Looking for WAR file in target/"
+                                ls -l target/iwayQApp-1.0-RELEASE.war || { echo "WAR file not found!"; exit 1; }
 
-                                # Upload each WAR file found
-                                for f in target/*.war; do
-                                  echo "Uploading $f to Artifactory..."
-                                  curl -v -u admin:Passme@1234 -X PUT "${ARTIFACTORY_URL}/${DEPLOY_REPO}/com/iwayq/${APP_NAME}/${VERSION}/${APP_NAME}-${VERSION}.war" -T "$f"
-                                done
+                                # Upload the WAR file
+                                echo "Uploading target/iwayQApp-1.0-RELEASE.war to Artifactory..."
+                                curl -v -u admin:Passme@1234 -X PUT "${ARTIFACTORY_URL}/${DEPLOY_REPO}/com/iwayq/iwayqapp/1.0.0/iwayqapp-1.0.0.war" -T target/iwayQApp-1.0-RELEASE.war
 
                                 # Publish build info
                                 curl -u admin:Passme@1234 \
