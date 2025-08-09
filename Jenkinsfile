@@ -1,6 +1,7 @@
 pipeline {
      agent {
         docker {
+            image 'maven:0.3.2'
             args '--network host'
         }
     }
