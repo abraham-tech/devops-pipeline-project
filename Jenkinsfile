@@ -198,8 +198,11 @@ pipeline {
 
                             // Upload artifact to Artifactory
                             sh '''
+                                #!/bin/bash
+                                set -e
+
                                 # Check if Artifactory is reachable
-                                if ! curl -s --connect-timeout 10 "${env.ARTIFACTORY_URL}/api/system/ping"; then
+                                if ! curl -s --connect-timeout 10 "${ARTIFACTORY_URL}/api/system/ping"; then
                                   echo "Artifactory is not reachable!"
                                   exit 1
                                 fi
@@ -211,13 +214,13 @@ pipeline {
                                 # Upload each WAR file found
                                 for f in target/*.war; do
                                   echo "Uploading $f to Artifactory..."
-                                  curl -v -u admin:Passme@1234 -X PUT "${env.ARTIFACTORY_URL}/${env.DEPLOY_REPO}/com/iwayq/${env.APP_NAME}/${env.VERSION}/${env.APP_NAME}-${env.VERSION}.war" -T "$f"
+                                  curl -v -u admin:Passme@1234 -X PUT "${ARTIFACTORY_URL}/${DEPLOY_REPO}/com/iwayq/${APP_NAME}/${VERSION}/${APP_NAME}-${VERSION}.war" -T "$f"
                                 done
 
                                 # Publish build info
                                 curl -u admin:Passme@1234 \
                                     -X PUT \
-                                    "${env.ARTIFACTORY_URL}/api/build" \
+                                    "${ARTIFACTORY_URL}/api/build" \
                                     -H "Content-Type: application/json" \
                                     -d @build-info.json
                             '''
