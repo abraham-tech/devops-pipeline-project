@@ -81,7 +81,7 @@ pipeline {
                                 <server>
                                     <id>${ARTIFACTORY_SERVER_ID}</id>
                                     <username>admin</username>
-                                    <password>Admin123</password>
+                                    <password>Passme@1234</password>
                                 </server>
                             </servers>
                             <profiles>
